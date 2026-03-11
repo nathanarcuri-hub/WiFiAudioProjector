@@ -1,10 +1,10 @@
 # WifiAudioProjector
 
-Live audio bridge from a PC to an iPhone over local WiFi.
+Live audio bridge from a PC to another device over local WiFi.
 
 ## Vision
 
-The host machine captures live system audio, publishes it on the LAN, and iPhone clients discover and play that stream through whatever output is currently connected to the phone, including AirPods and other Bluetooth headphones.
+The host machine captures live system audio, publishes it on the LAN, and receiver device's discover and play that stream through whatever output is currently connected to the receiver device, including Bluetooth headphones.
 
 ## For Now Scope
 
@@ -26,11 +26,10 @@ The host machine captures live system audio, publishes it on the LAN, and iPhone
 
 ## First Manual Test
 
-1. Install dependencies when ready.
-2. Start the host app.
-3. Open the receiver URL shown in the host window on your iPhone.
-4. Tap `Start Audio` in Safari.
-5. Confirm you hear the temporary test tone before we replace it with WASAPI loopback.
+1. Run "Start WifiAudioProjector.bat".
+2. Initial run will check for the required dependencies, downloading them if needed.
+3. Host window will display the receiver URL, which you can open in a browser on your phone or whatever other device. (Opening and running on same machine will create infinite feedback loop.)
+4. Tap `Start Audio` from receiver device.
 
 ## Real Host Run Path
 
