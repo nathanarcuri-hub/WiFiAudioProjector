@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WifiAudioProjector Host</title>
+    <style>
+      :root {
+        --bg: #050505;
+        --card: rgba(22, 22, 22, 0.94);
+        --card-soft: rgba(255, 255, 255, 0.03);
+        --text: #f4f6f6;
+        --muted: #98a0a6;
+        --green: #43b800;
+        --purple: #6a009c;
+        --amber: #f2b947;
+        --border: rgba(255, 255, 255, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: "Aptos", "SF Pro Display", "Segoe UI Variable", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(106, 0, 156, 0.28), transparent 34%),
+          radial-gradient(circle at bottom right, rgba(67, 184, 0, 0.16), transparent 30%),
+          linear-gradient(180deg, #050505 0%, #090909 100%);
+      }
+
+      main {
+        width: min(100%, 430px);
+        margin: 0 auto;
+        padding: 14px 14px 20px;
+      }
+
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .panel {
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, rgba(18, 18, 18, 0.98), rgba(9, 9, 9, 0.98));
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+          0 18px 40px rgba(0, 0, 0, 0.42);
+        padding: 18px;
+      }
+
+      .hero {
+        padding: 20px 18px 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.15rem, 10vw, 3.3rem);
+        line-height: 0.92;
+        letter-spacing: -0.06em;
+      }
+
+      .toolbar {
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .helper-state,
+      .ghost-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 40px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--card-soft);
+        color: #d7dbe0;
+        font: inherit;
+      }
+
+      .helper-state::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--amber);
+        box-shadow: 0 0 12px rgba(242, 185, 71, 0.55);
+      }
+
+      .helper-state.connected::before {
+        background: var(--green);
+        box-shadow: 0 0 12px rgba(67, 184, 0, 0.45);
+      }
+
+      .ghost-button {
+        cursor: pointer;
+      }
+
+      .section-title {
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+      }
+
+      .url-block + .url-block {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .value {
+        margin-top: 8px;
+        font-size: 1rem;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+      }
+
+      .value a {
+        color: #dfffd0;
+        text-decoration: none;
+      }
+
+      .value a:hover {
+        color: #ffffff;
+      }
+
+      .control-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .control {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .control span,
+      .meta-label {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      select {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        font: inherit;
+        outline: none;
+      }
+
+      select:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .subvalue {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+
+      .meta {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .meta-value {
+        margin-top: 6px;
+        color: #d7dbe0;
+        font-size: 0.95rem;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 460px) {
+        main {
+          width: 100%;
+          padding: 12px;
+        }
+
+        .panel {
+          border-radius: 20px;
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="stack">
+        <section class="panel hero">
+          <h1>WiFiAudioProjector</h1>
+          <div class="toolbar">
+            <div class="helper-state" id="helper-state">Waiting for helper connection...</div>
+            <button class="ghost-button" id="toggle-ip">Show Host IP</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="url-block">
+            <div class="section-title">Receiver URL</div>
+            <div class="value" id="receiver-url">Starting...</div>
+          </div>
+          <div class="url-block">
+            <div class="section-title">VLC URL</div>
+            <div class="value" id="vlc-url">Starting...</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-title">Capture Source</div>
+          <div class="control-list">
+            <label class="control">
+              <span>Mode</span>
+              <select id="capture-mode">
+                <option value="follow-default">Follow Default</option>
+                <option value="specific-device">Specific Device</option>
+                <option value="all-active">All Active (Legacy)</option>
+              </select>
+            </label>
+            <label class="control">
+              <span>Current Capture</span>
+              <select id="capture-device">
+                <option value="">Waiting for devices...</option>
+              </select>
+            </label>
+          </div>
+          <div class="subvalue" id="capture-status">Waiting for the helper to report device state...</div>
+          <div class="meta">
+            <div class="meta-label">Capture Format</div>
+            <div class="meta-value" id="format">Waiting for helper...</div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script>
+      (() => {
+        const rootApi = window.wifiAudioProjector;
+        const hostInfoApi = rootApi && rootApi.host;
+        const hostApi = rootApi && rootApi.capture;
+        const helperState = document.getElementById("helper-state");
+        const toggleIpButton = document.getElementById("toggle-ip");
+        const modeSelect = document.getElementById("capture-mode");
+        const deviceSelect = document.getElementById("capture-device");
+        const captureStatus = document.getElementById("capture-status");
+        const receiverUrl = document.getElementById("receiver-url");
+        const vlcUrl = document.getElementById("vlc-url");
+        const format = document.getElementById("format");
+
+        let currentState = null;
+        let hostStatus = null;
+        let hostIpVisible = false;
+        let suppressEvents = false;
+
+        function maskUrl(rawUrl) {
+          try {
+            const parsed = new URL(rawUrl);
+            const port = parsed.port ? `:${parsed.port}` : "";
+            return `${parsed.protocol}//hidden${port}${parsed.pathname}${parsed.search}${parsed.hash}`;
+          } catch {
+            return "Hidden";
+          }
+        }
+
+        function renderUrl(target, rawUrl) {
+          if (!rawUrl) {
+            target.textContent = "Unavailable";
+            return;
+          }
+
+          if (!hostIpVisible) {
+            target.textContent = maskUrl(rawUrl);
+            return;
+          }
+
+          target.innerHTML = `<a href="${rawUrl}">${rawUrl}</a>`;
+        }
+
+        function renderHostStatus(status) {
+          hostStatus = status;
+          renderUrl(receiverUrl, status.receiverUrl);
+          renderUrl(vlcUrl, status.vlcUrl);
+          format.textContent = status.format;
+        }
+
+        function updateIpButton() {
+          toggleIpButton.textContent = hostIpVisible ? "Hide Host IP" : "Show Host IP";
+        }
+
+        function summarize(state) {
+          const capturing = state.devices.filter((device) => device.isCapturing);
+
+          if (!state.helperConnected) {
+            return "Waiting for helper...";
+          }
+
+          if (state.mode === "follow-default") {
+            return capturing[0]
+              ? `Following default device: ${capturing[0].name}`
+              : "Waiting for an active default playback device.";
+          }
+
+          if (state.mode === "specific-device") {
+            return capturing[0]
+              ? `Capturing: ${capturing[0].name}`
+              : "The selected device is not active right now.";
+          }
+
+          return capturing.length > 0
+            ? `Capturing ${capturing.length} active playback device${capturing.length === 1 ? "" : "s"}.`
+            : "No active playback devices are currently being captured.";
+        }
+
+        function renderDevices(state) {
+          const devices = state.devices;
+          const selectedId = state.selectedDeviceId;
+          const previousValue = deviceSelect.value;
+
+          deviceSelect.innerHTML = "";
+
+          if (devices.length === 0) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = state.helperConnected ? "No playback devices detected" : "Waiting for devices...";
+            deviceSelect.appendChild(option);
+          } else {
+            for (const device of devices) {
+              const option = document.createElement("option");
+              option.value = device.id;
+              const tags = [];
+              if (device.isDefault) {
+                tags.push("Default");
+              }
+              if (!device.isActive) {
+                tags.push("Unavailable");
+              }
+              option.textContent = tags.length > 0 ? `${device.name} (${tags.join(", ")})` : device.name;
+              deviceSelect.appendChild(option);
+            }
+          }
+
+          if (selectedId && Array.from(deviceSelect.options).some((option) => option.value === selectedId)) {
+            deviceSelect.value = selectedId;
+          } else if (previousValue && Array.from(deviceSelect.options).some((option) => option.value === previousValue)) {
+            deviceSelect.value = previousValue;
+          } else if (deviceSelect.options.length > 0) {
+            deviceSelect.selectedIndex = 0;
+          }
+
+          deviceSelect.disabled = state.mode !== "specific-device" || devices.length === 0 || !state.helperConnected;
+        }
+
+        function renderState(state) {
+          currentState = state;
+          suppressEvents = true;
+          modeSelect.value = state.mode;
+          renderDevices(state);
+          helperState.textContent = state.helperConnected ? "Helper connected" : "Waiting for helper connection...";
+          helperState.classList.toggle("connected", state.helperConnected);
+          captureStatus.textContent = summarize(state);
+          modeSelect.disabled = !state.helperConnected;
+          suppressEvents = false;
+        }
+
+        async function applySelection(nextSelection) {
+          if (!hostApi) {
+            return;
+          }
+
+          try {
+            const updatedState = await hostApi.updateSelection(nextSelection);
+            renderState(updatedState);
+          } catch (error) {
+            const message = error && error.message ? error.message : String(error);
+            captureStatus.textContent = message;
+          }
+        }
+
+        toggleIpButton.addEventListener("click", () => {
+          hostIpVisible = !hostIpVisible;
+          updateIpButton();
+          if (hostStatus) {
+            renderHostStatus(hostStatus);
+          }
+        });
+
+        modeSelect.addEventListener("change", async () => {
+          if (!currentState || suppressEvents) {
+            return;
+          }
+
+          if (modeSelect.value === "specific-device") {
+            const nextDeviceId = currentState.selectedDeviceId
+              || currentState.devices.find((device) => device.isDefault)?.id
+              || currentState.devices[0]?.id;
+
+            if (!nextDeviceId) {
+              renderState(currentState);
+              return;
+            }
+
+            await applySelection({ mode: "specific-device", deviceId: nextDeviceId });
+            return;
+          }
+
+          await applySelection({ mode: modeSelect.value });
+        });
+
+        deviceSelect.addEventListener("change", async () => {
+          if (!currentState || suppressEvents || !deviceSelect.value) {
+            return;
+          }
+
+          await applySelection({ mode: "specific-device", deviceId: deviceSelect.value });
+        });
+
+        updateIpButton();
+
+        if (!rootApi || !hostInfoApi || !hostApi) {
+          captureStatus.textContent = "The host UI preload bridge is unavailable.";
+          helperState.textContent = "Host bridge unavailable";
+          return;
+        }
+
+        hostInfoApi.getStatus().then(renderHostStatus).catch((error) => {
+          const message = error && error.message ? error.message : String(error);
+          captureStatus.textContent = message;
+        });
+
+        hostApi.getState().then(renderState).catch((error) => {
+          captureStatus.textContent = error && error.message ? error.message : String(error);
+        });
+
+        hostApi.onStateChanged(renderState);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "wifi-audio-projector",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build:protocol && npm run build:host",
+    "build:host": "npm run build --workspace @wifi-audio-projector/host",
+    "build:protocol": "npm run build --workspace @wifi-audio-projector/protocol",
+    "start:host": "npm run build && electron apps/host/dist/main.js"
+  }
+}

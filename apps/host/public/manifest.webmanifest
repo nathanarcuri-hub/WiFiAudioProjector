@@ -1,0 +1,9 @@
+﻿{
+  "name": "WifiAudioProjector Receiver",
+  "short_name": "WifiAudio",
+  "display": "standalone",
+  "start_url": "/receiver",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "icons": []
+}

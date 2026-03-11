@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#050505" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>WifiAudioProjector Receiver</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <style>
+      :root {
+        --bg: #050505;
+        --card: rgba(28, 28, 28, 0.92);
+        --text: #f4f6f6;
+        --muted: #989da3;
+        --green: #43b800;
+        --purple: #6a009c;
+        --border: rgba(255, 255, 255, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Aptos", "SF Pro Display", "Segoe UI Variable", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top, rgba(106, 0, 156, 0.32), transparent 30%),
+          radial-gradient(circle at bottom, rgba(67, 184, 0, 0.16), transparent 28%),
+          linear-gradient(180deg, #050505 0%, #090909 100%);
+      }
+
+      main {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+      }
+
+      .app-shell {
+        width: min(100%, 560px);
+        padding: 22px;
+        border-radius: 34px;
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, rgba(20, 20, 20, 0.98), rgba(8, 8, 8, 0.98));
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+          0 26px 70px rgba(0, 0, 0, 0.56),
+          0 0 52px rgba(67, 184, 0, 0.12);
+      }
+
+      .topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--green), var(--purple));
+        box-shadow: 0 0 30px rgba(67, 184, 0, 0.22);
+      }
+
+      .brand-text strong {
+        display: block;
+        font-size: 1rem;
+        letter-spacing: 0.02em;
+      }
+
+      .brand-text span,
+      .meta-block,
+      .meta-block code,
+      .state-copy,
+      .eq-header span {
+        color: var(--muted);
+      }
+
+      .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+      }
+
+      .pill.live {
+        color: #dfffd0;
+        border-color: rgba(67, 184, 0, 0.32);
+        background: rgba(67, 184, 0, 0.14);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.2rem, 9vw, 3.6rem);
+        line-height: 0.96;
+        letter-spacing: -0.05em;
+      }
+
+      .controls {
+        display: grid;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      button {
+        width: 100%;
+        border-radius: 22px;
+        border: 0;
+        font: inherit;
+        padding: 20px 22px;
+        color: #050505;
+        font-size: 1.06rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        background: linear-gradient(135deg, #62ff00 0%, #43b800 52%, #6a009c 100%);
+        box-shadow: 0 16px 36px rgba(67, 184, 0, 0.22);
+      }
+
+      button.stop {
+        color: #fff7fb;
+        background: linear-gradient(135deg, #b10c49 0%, #6a009c 100%);
+        box-shadow: 0 16px 36px rgba(106, 0, 156, 0.26);
+      }
+
+      button:disabled,
+      input:disabled {
+        opacity: 0.65;
+      }
+
+      .state-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .state-copy {
+        font-size: 0.98rem;
+        text-align: right;
+      }
+
+      .card {
+        margin-top: 18px;
+        padding: 16px;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--card);
+      }
+
+      .eq-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .eq-band {
+        display: grid;
+        gap: 8px;
+      }
+
+      .eq-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.96rem;
+      }
+
+      .eq-header strong {
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+
+      .eq-slider {
+        width: 100%;
+        accent-color: #62ff00;
+      }
+
+      audio {
+        width: 100%;
+        margin-top: 18px;
+        filter: saturate(0.85) hue-rotate(-12deg);
+      }
+
+      .meta-block {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 0.82rem;
+        line-height: 1.55;
+        white-space: pre-line;
+      }
+
+      .meta-block code {
+        font-family: "Cascadia Code", "Consolas", monospace;
+        word-break: break-word;
+      }
+
+      .debug-panel {
+        margin-top: 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.03);
+        overflow: hidden;
+      }
+
+      .debug-toggle {
+        cursor: pointer;
+        list-style: none;
+        padding: 14px 16px;
+        color: var(--muted);
+        font-size: 0.88rem;
+        letter-spacing: 0.04em;
+        user-select: none;
+      }
+
+      .debug-toggle::-webkit-details-marker {
+        display: none;
+      }
+
+      .debug-toggle::after {
+        content: ">";
+        float: right;
+        color: var(--muted);
+        transition: transform 140ms ease;
+      }
+
+      .debug-panel[open] .debug-toggle::after {
+        transform: rotate(90deg);
+      }
+
+      .debug-panel .meta-block {
+        margin-top: 0;
+        border: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 0;
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="app-shell">
+        <div class="topline">
+          <div class="brand">
+            <div class="brand-mark"></div>
+            <div class="brand-text">
+              <strong>WifiAudioProjector</strong>
+              <span>Receiver</span>
+            </div>
+          </div>
+          <div class="pill" id="badge">Standby</div>
+        </div>
+
+        <h1>Receiver</h1>
+
+        <div class="controls">
+          <button id="toggle">Play Stream</button>
+        </div>
+
+        <div class="state-row">
+          <div class="state-copy" id="state">Idle</div>
+        </div>
+
+        <div class="card">
+          <div class="eq-grid">
+            <label class="eq-band" for="bass">
+              <span class="eq-header"><span>Bass</span><strong id="bass-value">0 dB</strong></span>
+              <input class="eq-slider" id="bass" type="range" min="-12" max="12" step="1" value="0" />
+            </label>
+            <label class="eq-band" for="mid">
+              <span class="eq-header"><span>Mid</span><strong id="mid-value">0 dB</strong></span>
+              <input class="eq-slider" id="mid" type="range" min="-12" max="12" step="1" value="0" />
+            </label>
+            <label class="eq-band" for="treble">
+              <span class="eq-header"><span>Treble</span><strong id="treble-value">0 dB</strong></span>
+              <input class="eq-slider" id="treble" type="range" min="-12" max="12" step="1" value="0" />
+            </label>
+          </div>
+        </div>
+
+        <audio id="audio" autoplay playsinline controls></audio>
+
+                <details class="debug-panel">
+          <summary class="debug-toggle">Debug</summary>
+          <div class="meta-block" id="meta-block">Loading session...</div>
+        </details>
+      </section>
+    </main>
+    <script type="module" src="/receiver.js"></script>
+  </body>
+</html>
+
