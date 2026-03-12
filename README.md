@@ -19,5 +19,8 @@ The host machine captures live system audio, publishes it on the LAN, and receiv
 
 1. Occasional fuzzy playback after listening for 5-10 minutes.
 2. Switching default audio device doesn't automatically switch when "Follow Default Device" is selected.
-2. Not the best quality, quality was sacrificed a bit to have lower latency.
-3. Web based, not app based.
+3. Not the best quality, quality was sacrificed a bit to have lower latency.
+4. Web based, not app based.
+5. Possible Virus protection false positive for a trojan: This app is not malware, but because it downloads runtime dependencies, launches local helper processes, captures system audio, and opens local network ports, some antivirus tools may flag it as suspicious. Those behaviors are required for the app to work, but the project is currently unsigned and uses PowerShell/bootstrap scripts, which can increase false positives.
+
+
