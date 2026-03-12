@@ -1,4 +1,4 @@
-# WifiAudioProjector, AKA "WAP"
+# WifiAudioProjector (WAP)
 
 Live audio bridge from a PC to another device over local WiFi.
 
