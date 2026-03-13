@@ -75,7 +75,14 @@ if exist "%ROOT%\node_modules\.bin\electron.cmd" (
 )
 
 call :announce "Checking host build output:"
-if exist "%ROOT%\apps\host\dist\main.js" if exist "%ROOT%\packages\protocol\dist\index.js" (
+set "HOST_BUILD_READY="
+if exist "%ROOT%\apps\host\dist\main.js" (
+  if exist "%ROOT%\packages\protocol\dist\index.js" (
+    set "HOST_BUILD_READY=1"
+  )
+)
+
+if defined HOST_BUILD_READY (
   call :announce "Success"
 ) else (
   call :announce "Build output not found, building project..."
