@@ -28,7 +28,7 @@ interface HostConsoleData {
 }
 
 contextBridge.exposeInMainWorld("wifiAudioProjector", {
-  version: "0.1.0",
+  version: "1.0.1",
   host: {
     getStatus: (): Promise<HostConsoleData> => ipcRenderer.invoke("host:get-ui-data")
   },

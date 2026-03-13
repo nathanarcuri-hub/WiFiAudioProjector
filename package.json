@@ -1,7 +1,7 @@
 {
   "name": "wifi-audio-projector",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.1",
   "workspaces": [
     "apps/*",
     "packages/*"
