@@ -1,4 +1,5 @@
-﻿const { contextBridge, ipcRenderer } = require("electron") as typeof import("electron");
+const { contextBridge, ipcRenderer } = require("electron") as typeof import("electron");
+const QRCode = require("qrcode") as typeof import("qrcode");
 
 interface CaptureDevice {
   id: string;
@@ -30,7 +31,17 @@ interface HostConsoleData {
 contextBridge.exposeInMainWorld("wifiAudioProjector", {
   version: "1.0.1",
   host: {
-    getStatus: (): Promise<HostConsoleData> => ipcRenderer.invoke("host:get-ui-data")
+    getStatus: (): Promise<HostConsoleData> => ipcRenderer.invoke("host:get-ui-data"),
+    createQrCodeDataUrl: (text: string): Promise<string> =>
+      QRCode.toDataURL(text, {
+        errorCorrectionLevel: "M",
+        margin: 1,
+        width: 280,
+        color: {
+          dark: "#050505",
+          light: "#ffffff"
+        }
+      })
   },
   capture: {
     getState: (): Promise<CaptureState> => ipcRenderer.invoke("capture:get-state"),
@@ -51,4 +62,3 @@ contextBridge.exposeInMainWorld("wifiAudioProjector", {
     }
   }
 });
-

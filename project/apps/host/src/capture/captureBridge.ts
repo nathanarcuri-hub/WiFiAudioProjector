@@ -326,8 +326,20 @@ export class CaptureBridge {
     }
 
     console.log(`[capture-helper] launching via PowerShell on port ${address.port}`);
-    const psCommand = `Start-Process -FilePath '${helperExe.replace(/'/g, "''")}' -ArgumentList '--port ${address.port} --frame-duration-ms 10 --outbound-queue-capacity 8' -WorkingDirectory '${this.repoRoot.replace(/'/g, "''")}'`;
-    execFile("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", psCommand], { cwd: this.repoRoot, windowsHide: false }, () => {});
+    const psCommand = `Start-Process -FilePath '${helperExe.replace(/'/g, "''")}' -ArgumentList '--port ${address.port} --frame-duration-ms 10 --outbound-queue-capacity 24' -WorkingDirectory '${this.repoRoot.replace(/'/g, "''")}' -WindowStyle Hidden`;
+    execFile(
+      "powershell.exe",
+      ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", psCommand],
+      {
+        cwd: this.repoRoot,
+        windowsHide: true,
+        env: {
+          ...process.env,
+          WIFI_AUDIO_LOG_DIR: path.join(this.repoRoot, "..", "logs")
+        }
+      },
+      () => {}
+    );
 
     return readyPromise;
   }

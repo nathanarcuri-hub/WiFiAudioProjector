@@ -9,18 +9,18 @@ let activeSenderProfileId = 'balanced';
 const senderProfiles = {
   balanced: {
     id: 'balanced',
-    maxBufferMs: 52,
-    targetBufferMs: 20,
-    startBufferMs: 16,
-    resumeBufferMs: 10,
+    maxBufferMs: 96,
+    targetBufferMs: 40,
+    startBufferMs: 32,
+    resumeBufferMs: 20,
     maxBitrate: 256000
   },
   aggressive: {
     id: 'aggressive',
-    maxBufferMs: 32,
-    targetBufferMs: 12,
-    startBufferMs: 9,
-    resumeBufferMs: 6,
+    maxBufferMs: 64,
+    targetBufferMs: 28,
+    startBufferMs: 22,
+    resumeBufferMs: 14,
     maxBitrate: 256000
   }
 };

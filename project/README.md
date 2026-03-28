@@ -11,9 +11,11 @@ The host machine captures live system audio, publishes it on the LAN, and receiv
 ## How to use it:
 
 1. Run "Start WifiAudioProjector.bat".
-2. Initial run will check for the required dependencies (Node.js, npm packages, Electron, .NET 8 SDK/runtime), automatically downloading them to the source folder if needed.
-3. Host window will open, displaying the receiver URL, which you can open in a web browser on your receiver device (phone, tablet, whatever). NOTE: Opening and running on same machine will create infinite feedback loop.
-4. Tap `Start Audio` from the receiver device.
+2. If Start says dependencies are missing, run "Update WifiAudioProjector Dependencies.bat".
+3. The update script downloads or refreshes dependencies. Runtime folders live at the repository root, while the source project lives under the `project` folder.
+4. After the dependency step finishes, run "Start WifiAudioProjector.bat" again to start WAP.
+5. Host window will open, displaying the receiver URL, which you can open in a web browser on your receiver device (phone, tablet, whatever). NOTE: Opening and running on same machine will create infinite feedback loop.
+6. Tap `Start Audio` from the receiver device.
    
 ## Known issues:
 

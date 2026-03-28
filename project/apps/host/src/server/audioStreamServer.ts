@@ -1,6 +1,7 @@
 import express from "express";
 import path from "node:path";
 import { createServer, type Server as HttpServer, type ServerResponse } from "node:http";
+import { createServer as createNetServer } from "node:net";
 import { WebSocketServer, type WebSocket } from "ws";
 import {
   DEFAULT_SESSION,
@@ -58,11 +59,15 @@ export class AudioStreamServer {
     });
 
     this.app.get('/receiver', (_request, response) => {
-      response.sendFile(path.join(options.publicDir, 'receiver.html'));
+      response.sendFile(path.join(options.publicDir, 'receiver-rtc.html'));
     });
 
     this.app.get('/receiver-low-latency', (_request, response) => {
       response.redirect(302, '/receiver');
+    });
+
+    this.app.get('/receiver-pcm', (_request, response) => {
+      response.sendFile(path.join(options.publicDir, 'receiver.html'));
     });
 
     this.app.get('/listen.wav', (_request, response) => {
@@ -130,9 +135,11 @@ export class AudioStreamServer {
   }
 
   async listen(port = 0): Promise<number> {
-    await new Promise<void>((resolve) => {
-      this.server.listen(port, resolve);
-    });
+    const desiredPort = port !== 0 && !await this.isPortAvailable(port)
+      ? 0
+      : port;
+
+    await this.listenOnPort(desiredPort);
 
     const address = this.server.address();
     if (!address || typeof address === 'string') {
@@ -173,6 +180,10 @@ export class AudioStreamServer {
   }
 
   broadcastFrame(frame: AudioFrame): void {
+    if (this.clients.size === 0 && this.wavClients.size === 0) {
+      return;
+    }
+
     const payload = encodeAudioFrame(frame);
 
     for (const client of this.clients) {
@@ -249,6 +260,64 @@ export class AudioStreamServer {
 
   private get clientCount(): number {
     return this.clients.size + this.wavClients.size;
+  }
+
+  private listenOnPort(port: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const handleListening = () => {
+        cleanup();
+        resolve();
+      };
+
+      const handleError = (error: Error) => {
+        cleanup();
+        reject(error);
+      };
+
+      const cleanup = () => {
+        this.server.off("listening", handleListening);
+        this.server.off("error", handleError);
+      };
+
+      this.server.once("listening", handleListening);
+      this.server.once("error", handleError);
+      this.server.listen(port);
+    });
+  }
+
+  private isPortAvailable(port: number): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      const probe = createNetServer();
+
+      const cleanup = () => {
+        probe.removeAllListeners("error");
+        probe.removeAllListeners("listening");
+      };
+
+      probe.once("error", (error: NodeJS.ErrnoException) => {
+        cleanup();
+        if (error.code === "EADDRINUSE") {
+          resolve(false);
+          return;
+        }
+
+        reject(error);
+      });
+
+      probe.once("listening", () => {
+        cleanup();
+        probe.close((error) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+
+          resolve(true);
+        });
+      });
+
+      probe.listen(port);
+    });
   }
 }
 

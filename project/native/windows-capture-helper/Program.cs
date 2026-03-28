@@ -246,7 +246,12 @@ internal static class HelperLog
 
     private static string CreateLogPath()
     {
-        var logDirectory = Path.Combine(Environment.CurrentDirectory, "logs");
+        var logDirectory = Environment.GetEnvironmentVariable("WIFI_AUDIO_LOG_DIR");
+        if (string.IsNullOrWhiteSpace(logDirectory))
+        {
+            logDirectory = Path.Combine(Environment.CurrentDirectory, "logs");
+        }
+
         Directory.CreateDirectory(logDirectory);
         return Path.Combine(logDirectory, "helper-debug.log");
     }

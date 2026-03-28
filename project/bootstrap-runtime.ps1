@@ -5,6 +5,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$scriptDir = Split-Path -Parent $PSCommandPath
 
 if (-not $EnsureNode -and -not $EnsureDotnet) {
     $EnsureNode = $true
@@ -72,7 +73,7 @@ function Install-Dotnet {
         return
     }
 
-    $installScript = Join-Path $ProjectRoot '.codex-dotnet-install.ps1'
+    $installScript = Join-Path $scriptDir '.codex-dotnet-install.ps1'
     if (-not (Test-Path $installScript)) {
         throw 'The dotnet install script was not found.'
     }

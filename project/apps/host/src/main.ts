@@ -19,9 +19,14 @@ const WEB_PORT = Number.parseInt(process.env.WIFI_AUDIO_WEB_PORT ?? "39394", 10)
 async function bootstrap(): Promise<void> {
   let server: AudioStreamServer | undefined;
   let mainWindow: BrowserWindow | undefined;
+  let senderWindow: BrowserWindow | undefined;
 
   const captureBridge = new CaptureBridge(repoRoot);
   const captureSession = await captureBridge.start((frame) => {
+    if (senderWindow && !senderWindow.isDestroyed()) {
+      senderWindow.webContents.send("low-latency-frame", frame.payload);
+    }
+
     if (!server) {
       return;
     }
@@ -44,6 +49,25 @@ async function bootstrap(): Promise<void> {
 
   const port = await server.listen(WEB_PORT);
   mdns.start(port, server.getStatus().session);
+  senderWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, "senderPreload.cjs"),
+      contextIsolation: true,
+      sandbox: false,
+      backgroundThrottling: false
+    }
+  });
+
+  senderWindow.webContents.on("console-message", (_event, _level, message) => {
+    console.log("[sender-ui]", message);
+  });
+
+  senderWindow.webContents.on("did-fail-load", (_event, errorCode, errorDescription) => {
+    console.error("Sender window failed to load:", errorCode, errorDescription);
+  });
+
+  await senderWindow.loadURL(`http://127.0.0.1:${port}/sender-rtc.html`);
 
   const status = server.getStatus();
   const baseUrl = status.addresses[0]
@@ -99,8 +123,18 @@ async function bootstrap(): Promise<void> {
     mainWindow.webContents.send("capture:state", captureBridge.getState());
   }
 
-  server.setWebRtcAnswerHandler(async () => {
-    throw new Error("Direct receiver mode is disabled while we stabilize the reliable PCM path.");
+  server.setWebRtcAnswerHandler(async (offer, profileId) => {
+    if (!senderWindow || senderWindow.isDestroyed()) {
+      throw new Error("Low-latency sender window is unavailable.");
+    }
+
+    const script = `window.createLowLatencyAnswer(${JSON.stringify(offer)}, ${JSON.stringify(profileId ?? "balanced")})`;
+    const result = await senderWindow.webContents.executeJavaScript(script, true) as { type: string; sdp: string } | undefined;
+    if (!result || typeof result.type !== "string" || typeof result.sdp !== "string") {
+      throw new Error("Low-latency sender did not return a valid WebRTC answer.");
+    }
+
+    return result;
   });
 
   app.on("before-quit", () => {
@@ -108,6 +142,8 @@ async function bootstrap(): Promise<void> {
     ipcMain.removeHandler("capture:get-state");
     ipcMain.removeHandler("capture:update-selection");
     captureBridge.stop();
+    senderWindow?.close();
+    senderWindow = undefined;
     mdns.stop();
     server?.close();
   });

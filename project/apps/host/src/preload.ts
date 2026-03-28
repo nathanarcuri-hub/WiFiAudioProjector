@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
+import QRCode from "qrcode";
 import type { HostConsoleData } from "./types.js";
 
 interface CaptureDevice {
@@ -24,7 +25,17 @@ interface CaptureSelectionCommand {
 contextBridge.exposeInMainWorld("wifiAudioProjector", {
   version: "1.0.1",
   host: {
-    getStatus: (): Promise<HostConsoleData> => ipcRenderer.invoke("host:get-ui-data")
+    getStatus: (): Promise<HostConsoleData> => ipcRenderer.invoke("host:get-ui-data"),
+    createQrCodeDataUrl: (text: string): Promise<string> =>
+      QRCode.toDataURL(text, {
+        errorCorrectionLevel: "M",
+        margin: 1,
+        width: 280,
+        color: {
+          dark: "#050505",
+          light: "#ffffff"
+        }
+      })
   },
   capture: {
     getState: (): Promise<CaptureState> => ipcRenderer.invoke("capture:get-state"),

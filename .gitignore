@@ -1,0 +1,10 @@
+node_modules/
+.tools/
+.dotnet-cli/
+.nuget/
+logs/
+project/apps/host/dist/
+project/packages/protocol/dist/
+project/native/windows-capture-helper/bin/
+project/native/windows-capture-helper/obj/
+bkup/
