@@ -6,23 +6,40 @@ Live audio bridge from a PC to another device over local WiFi.
 
 ## Vision
 
-The host machine captures live system audio, publishes it on the LAN, and receiver device's discover and play that stream through whatever output is currently connected to the receiver device, including Bluetooth headphones.
+WifiAudioProjector lets a host PC capture live system audio and project it over the local WiFi network. A phone, tablet, laptop, or other device on the same WiFi can connect using the QR code shown in the app and play the stream through whatever audio output that device is using, including Bluetooth headphones.
 
-## How to use it:
+The goal is simple: use another device as a wireless audio receiver for your PC.
 
-1. Run "Start WifiAudioProjector.bat".
-2. If Start says dependencies are missing, run "Update WifiAudioProjector Dependencies.bat".
-3. The update script downloads or refreshes dependencies. Runtime folders live at the repository root, while the source project lives under the `project` folder.
-4. After the dependency step finishes, run "Start WifiAudioProjector.bat" again to start WAP.
-5. Host window will open, displaying the receiver URL, which you can open in a web browser on your receiver device (phone, tablet, whatever). NOTE: Opening and running on same machine will create infinite feedback loop.
-6. Tap `Start Audio` from the receiver device.
-   
-## Known issues:
+## How to use it
 
-1. Occasional fuzzy playback after listening for 5-10 minutes.
-2. Switching default audio device doesn't automatically switch when "Follow Default Device" is selected.
-3. Not the best quality, quality was sacrificed a bit to have lower latency.
-4. Web based, not app based.
-5. Possible Virus protection false positive for a trojan: This app is not malware, but because it downloads runtime dependencies, launches local helper processes, captures system audio, and opens local network ports, some antivirus tools may flag it as suspicious. Those behaviors are required for the app to work, but the project is currently unsigned and uses PowerShell/bootstrap scripts, which can increase false positives.
+1. Run `WifiAudioProjector.exe`.
+2. The app will open and display a receiver URL and QR code.
+3. Make sure your receiver device is connected to the same WiFi network as the host PC.
+4. Scan the QR code with the receiver device or enter the QR code url displayed above it.
+5. Open the receiver page in the device browser.
+6. Tap `Start Audio` on the receiver device.
+7. Audio from the host PC should begin playing on the receiver device.
 
+> NOTE: Opening the receiver on the same machine that is hosting the stream can create an infinite feedback loop.
 
+## Closing the app
+
+WifiAudioProjector minimizes to the system tray when the main window is minimized.
+WifiAudioProjector closes when the main window is closed.
+
+To fully exit the app if minimized:
+
+1. Right click the tray icon.
+2. Select `Quit`.
+
+## Known issues
+
+1. Playback may stutter if the host computer is under heavy load.
+2. Audio quality is not perfect because some quality was sacrificed for lower latency.
+3. Receiver playback is browser based, even though the host app is a standalone portable `.exe`.
+
+## Notes
+
+WifiAudioProjector is designed for local network use. The host PC and receiver device must be on the same WiFi network.
+
+This app is not designed to be exposed to the public internet. Port forwarding the app outside your network is your choice, but it is not the intended or supported setup.
