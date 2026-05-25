@@ -2,6 +2,8 @@
 
 Live audio bridge from a PC to another device over local WiFi.
 
+<img src="wap_icon.png" width="180">
+
 <img src="wap.png" width="700">
 
 ## Vision
@@ -15,7 +17,7 @@ The goal is simple: use another device as a wireless audio receiver for your PC.
 1. Run `WifiAudioProjector.exe`.
 2. The app will open and display a receiver URL and QR code.
 3. Make sure your receiver device is connected to the same WiFi network as the host PC.
-4. Scan the QR code with the receiver device or enter the QR code url displayed above it.
+4. Scan the QR code with the receiver device.
 5. Open the receiver page in the device browser.
 6. Tap `Start Audio` on the receiver device.
 7. Audio from the host PC should begin playing on the receiver device.
@@ -24,10 +26,9 @@ The goal is simple: use another device as a wireless audio receiver for your PC.
 
 ## Closing the app
 
-WifiAudioProjector minimizes to the system tray when the main window is minimized.
-WifiAudioProjector closes when the main window is closed.
+WifiAudioProjector minimizes to the system tray when the main window is closed.
 
-To fully exit the app if minimized:
+To fully exit the app:
 
 1. Right click the tray icon.
 2. Select `Quit`.
@@ -37,6 +38,12 @@ To fully exit the app if minimized:
 1. Playback may stutter if the host computer is under heavy load.
 2. Audio quality is not perfect because some quality was sacrificed for lower latency.
 3. Receiver playback is browser based, even though the host app is a standalone portable `.exe`.
+
+## Files
+
+- `WifiAudioProjector.exe` - Standalone portable host app
+- `wap_icon.png` - App icon
+- `wap.png` - Project preview image
 
 ## Notes
 
