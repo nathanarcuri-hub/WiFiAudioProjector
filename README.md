@@ -39,14 +39,16 @@ To fully exit the app:
 2. Audio quality is not perfect because some quality was sacrificed for lower latency.
 3. Receiver playback is browser based, even though the host app is a standalone portable `.exe`.
 
-## Files
-
-- `WifiAudioProjector.exe` - Standalone portable host app
-- `wap_icon.png` - App icon
-- `wap.png` - Project preview image
-
 ## Notes
 
 WifiAudioProjector is designed for local network use. The host PC and receiver device must be on the same WiFi network.
 
 This app is not designed to be exposed to the public internet. Port forwarding the app outside your network is your choice, but it is not the intended or supported setup.
+
+---
+
+## Support
+
+If you like this project, you can support me here:
+
+[Buy me a coffee](https://buymeacoffee.com/nathanarcuri)
